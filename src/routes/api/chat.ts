@@ -45,7 +45,6 @@ export const Route = createFileRoute("/api/chat")({
               { role: "system", content: parsed.data.systemPrompt },
               ...parsed.data.messages,
             ],
-            stream: true,
           });
           const response = stream.toResponse();
           const headers = new Headers(response.headers);

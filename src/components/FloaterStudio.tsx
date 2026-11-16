@@ -268,7 +268,7 @@ export function FloaterStudio({ projectId: routeProjectId }: FloaterStudioProps)
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const previewRef = useRef<HTMLIFrameElement>(null);
   const projectsRef = useRef<FloaterProject[]>([]);
-  const runRef = useRef(0);
+  const runRef = useRef("");
   const recordingRef = useRef<MediaRecorder | null>(null);
   const responseStartRef = useRef(0);
   const ensuredRouteRef = useRef("");
@@ -362,7 +362,7 @@ export function FloaterStudio({ projectId: routeProjectId }: FloaterStudioProps)
         setCloudProjects([]);
         return;
       }
-      const name = user.user_metadata?.display_name ?? user.user_metadata?.full_name ?? user.email?.split("@")[0] ?? "Floater creator";
+      const name = user.user_metadata?.["display_name"] ?? user.user_metadata?.["full_name"] ?? user.email?.split("@")[0] ?? "Floater creator";
       void supabase.from("profiles").upsert({ id: user.id, display_name: name }, { onConflict: "id" });
       const { data, error } = await supabase.from("projects").select("id,title,type,code,created_at,updated_at,user_id").order("updated_at", { ascending: false }).limit(100);
       if (ignore) return;
@@ -802,7 +802,7 @@ export function FloaterStudio({ projectId: routeProjectId }: FloaterStudioProps)
     setBusy("repo"); setEngineMessage("");
     try {
       const headers = { Accept: "application/vnd.github+json", "Content-Type": "application/json", Authorization: `Bearer ${connectors.githubToken.trim()}`, "X-GitHub-Api-Version": "2022-11-28" };
-      for (const [path, content] of [["index.html", previewCode], ["README.md", `# ${currentProject?.title ?? "Floater AI project"}\n\nBuilt with [Floater AI](https://floater.ai).\n`]]) {
+      for (const [path, content] of ([["index.html", previewCode], ["README.md", `# ${currentProject?.title ?? "Floater AI project"}\n\nBuilt with [Floater AI](https://floater.ai).\n`]] as [string, string][])) {
         const check = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, { headers });
         let sha: string | undefined;
         if (check.ok) sha = ((await check.json()) as { sha?: string }).sha;
@@ -898,7 +898,7 @@ export function FloaterStudio({ projectId: routeProjectId }: FloaterStudioProps)
           <Button variant="outline" size="sm" className="header-action dev-button" onClick={() => devEnabled ? setDevOpen(true) : setPinOpen(true)}>{devEnabled ? <ShieldCheck className="size-4 text-primary" /> : <Settings2 className="size-4" />}<span className="hidden lg:inline">{devEnabled ? "Super Admin / Dev" : "Dev Mode"}</span></Button>
           {devEnabled ? <span className="dev-badge"><ShieldCheck className="size-3" />SUPER ADMIN / DEV</span> : null}
           <Button variant="outline" size="sm" className="header-action new-chat-button" onClick={newProject}><Plus className="size-4" /><span>New Chat</span></Button>
-          {cloudUser ? <Button variant="outline" size="sm" className="account-chip" onClick={() => void handleSignOut()} title={`Sign out ${cloudUser.email ?? ""}`}><span className="account-avatar">{(cloudUser.email?.[0] ?? "F").toUpperCase()}</span><span className="hidden xl:inline max-w-28 truncate">{cloudUser.user_metadata?.display_name ?? cloudUser.email?.split("@")[0]}</span><span className="hidden md:inline">Sign out</span></Button> : <Button size="sm" className="sync-button" onClick={() => { setAuthMode("sign-in"); setAuthMessage(""); setAuthModal(true); }}><LockKeyhole className="size-4" /><span>Sign In to Sync Cloud</span></Button>}
+          {cloudUser ? <Button variant="outline" size="sm" className="account-chip" onClick={() => void handleSignOut()} title={`Sign out ${cloudUser.email ?? ""}`}><span className="account-avatar">{(cloudUser.email?.[0] ?? "F").toUpperCase()}</span><span className="hidden xl:inline max-w-28 truncate">{cloudUser.user_metadata?.["display_name"] ?? cloudUser.email?.split("@")[0]}</span><span className="hidden md:inline">Sign out</span></Button> : <Button size="sm" className="sync-button" onClick={() => { setAuthMode("sign-in"); setAuthMessage(""); setAuthModal(true); }}><LockKeyhole className="size-4" /><span>Sign In to Sync Cloud</span></Button>}
         </nav>
       </header>
 
@@ -925,7 +925,7 @@ export function FloaterStudio({ projectId: routeProjectId }: FloaterStudioProps)
             ))}
             {visibleProjects.length === 0 ? <p className="empty-sidebar">Your next idea starts here.</p> : null}
           </div>
-          <div className="sidebar-footer"><div className="footer-profile"><span className="footer-avatar">{cloudUser ? (cloudUser.user_metadata?.display_name ?? cloudUser.email)?.[0]?.toUpperCase() ?? "F" : "F"}</span><div className="min-w-0 flex-1"><p className="truncate text-xs font-medium">{cloudUser?.user_metadata?.display_name ?? cloudUser?.email?.split("@")[0] ?? "Guest creator"}</p><p className="text-[10px] text-muted-foreground">{devEnabled ? developerSettings.developer : cloudUser ? "Synced with Floater Cloud" : "Browser-only workspace"}</p></div><Button size="icon" variant="ghost" aria-label="Workspace settings" onClick={() => setEnginesOpen(true)}><Settings2 className="size-4" /></Button></div><div className="engine-status"><span><Activity className="size-3.5" />{engineStatus === "Thinking" ? "Thinking" : "Engine online"}</span><span>{saving ? "Saving…" : cloudUser ? "Cloud" : "Local"}</span></div></div>
+          <div className="sidebar-footer"><div className="footer-profile"><span className="footer-avatar">{cloudUser ? (cloudUser.user_metadata?.["display_name"] ?? cloudUser.email)?.[0]?.toUpperCase() ?? "F" : "F"}</span><div className="min-w-0 flex-1"><p className="truncate text-xs font-medium">{cloudUser?.user_metadata?.["display_name"] ?? cloudUser?.email?.split("@")[0] ?? "Guest creator"}</p><p className="text-[10px] text-muted-foreground">{devEnabled ? developerSettings.developer : cloudUser ? "Synced with Floater Cloud" : "Browser-only workspace"}</p></div><Button size="icon" variant="ghost" aria-label="Workspace settings" onClick={() => setEnginesOpen(true)}><Settings2 className="size-4" /></Button></div><div className="engine-status"><span><Activity className="size-3.5" />{engineStatus === "Thinking" ? "Thinking" : "Engine online"}</span><span>{saving ? "Saving…" : cloudUser ? "Cloud" : "Local"}</span></div></div>
         </aside> : null}
 
         <main className={`studio-main ${chatMode === "chat" ? "chat-mode" : ""} ${chatMode === "studio" ? "studio-mode" : ""}`}>
@@ -941,7 +941,7 @@ export function FloaterStudio({ projectId: routeProjectId }: FloaterStudioProps)
             {chatMode !== "studio" ? <section className={`chat-pane ${chatMode === "chat" ? "chat-pane-full" : ""}`} aria-label="Floater AI conversation">
               <div className="chat-toolbar"><div><p className="eyebrow">YOUR AI STUDIO PARTNER</p><h1 className="font-display text-base font-semibold">Floater AI <span className="assistant-badge"><Orbit className="size-3" />ACTIVE</span></h1></div><div className="flex items-center gap-1"><span className="live-dot" title="Assistant ready" />{cloudUser ? <span className="hidden text-[10px] text-muted-foreground sm:inline">Synced</span> : <span className="hidden text-[10px] text-muted-foreground sm:inline">Guest mode</span>}<Button size="icon" variant="ghost" aria-label="Open studio panel" title="Open studio panel" onClick={() => setRightPanelOpen((open) => !open)}><Maximize2 className="size-4" /></Button></div></div>
               {cloudError ? <div className="cloud-error"><CircleAlert className="size-3.5 shrink-0" />{cloudError}<button type="button" onClick={() => setCloudError("")} aria-label="Dismiss"><X className="size-3" /></button></div> : null}
-              <Conversation className="transcript-scroll" ref={scrollRef}>
+              <Conversation className="transcript-scroll">
                 <ConversationContent className="transcript-content">
                   {messages.map((message, index) => {
                     const extractedCode = message.role === "assistant" ? getHtmlFromAnswer(message.content) : null;
