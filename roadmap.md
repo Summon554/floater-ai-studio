@@ -1,5 +1,5 @@
-- [ ] Build the Floater AI chat and studio interface with responsive project navigation.
-- [ ] Add local guest projects and cloud-saved account projects with threaded message history.
+- [x] Build the Floater AI chat and studio interface with responsive project navigation.
+- [x] Add local guest projects and cloud-saved account projects with threaded message history.
 - [ ] Add email/social sign-in, provider settings, connectors, and local creator tools.
 - [ ] Add assistant replies and editable web/motion preview with export controls.
 - [ ] Verify the root and project conversation flows, builds, tests, and current roadmap.
